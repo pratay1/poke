@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
 
 export default function App() {
-  const [notes, setNotes] = useState<{ id: number; text: string }[]>([]);
-  const [tasks, setTasks] = useState<{ id: number; text: string; completed: boolean }[]>([]);
-  const [links, setLinks] = useState<{ id: number; text: string; url: string }[]>([]);
+  // Initialize state with values from localStorage or empty arrays
+  const [notes, setNotes] = useState<{ id: number; text: string }[]>(() => {
+    const saved = localStorage.getItem('poke_notes');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [tasks, setTasks] = useState<{ id: number; text: string; completed: boolean }[]>(() => {
+    const saved = localStorage.getItem('poke_tasks');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [links, setLinks] = useState<{ id: number; text: string; url: string }[]>(() => {
+    const saved = localStorage.getItem('poke_links');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Persist state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('poke_notes', JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem('poke_tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('poke_links', JSON.stringify(links));
+  }, [links]);
 
   const addItem = (type: 'notes' | 'tasks' | 'links', val: string, extra?: string) => {
     if (!val) return;
@@ -15,7 +40,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-near-black p-8 font-sans selection:bg-zinc-800 selection:text-white">
+    <div className="min-h-screen bg-near-black p-8 font-sans selection:bg-zinc-800 selection:text-white text-zinc-100">
       <header className="mb-12">
         <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Poke Dashboard</h1>
         <p className="text-zinc-500 mt-2">Monday, June 8, 2026</p>
