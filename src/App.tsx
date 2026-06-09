@@ -73,50 +73,47 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-zinc-400 font-sans selection:bg-zinc-500/30">
-      <header className="border-b border-[#262626] bg-[#1a1a1a]/90 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-zinc-100 rounded-xl flex items-center justify-center font-black text-[#1a1a1a] shadow-2xl rotate-3">P</div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-zinc-100">Poke Dashboard</h1>
-              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em] mt-0.5">Control Center • v2.0</p>
-            </div>
+    <div className="min-h-screen bg-black text-zinc-400 font-sans selection:bg-zinc-800">
+      <header className="border-b border-[#161616] bg-black/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-zinc-100 rounded-lg flex items-center justify-center font-bold text-black">P</div>
+            <h1 className="text-sm font-bold tracking-tight text-zinc-100">Poke</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2.5 text-zinc-500 text-[10px] font-bold uppercase tracking-widest bg-zinc-900/50 px-4 py-2 rounded-full border border-zinc-800/50">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-              Synchronized
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-2 text-zinc-500 text-[10px] uppercase tracking-widest font-medium">
+              <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
+              {new Date(state.lastSaved).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
-            <div className="text-[10px] text-zinc-400 bg-zinc-100/5 hover:bg-zinc-100/10 transition-colors px-3 py-2 rounded-lg border border-white/5 font-mono cursor-default">
-              ⌘K
+            <div className="text-[10px] text-zinc-500 border border-[#161616] px-2 py-1 rounded font-mono">
+              CMD+K
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <WidgetHost 
             title="Notes" 
             onClear={() => setState(p => ({ ...p, notes: [] }))}
-            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/></svg>}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/></svg>}
           >
             <NotesWidget notes={state.notes} onAdd={addNote} onDelete={deleteNote} onUpdate={updateNote} />
           </WidgetHost>
 
           <WidgetHost 
-            title="Objectives" 
+            title="Tasks" 
             onClear={() => setState(p => ({ ...p, tasks: [] }))}
-            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
           >
             <TasksWidget tasks={state.tasks} onAdd={addTask} onToggle={toggleTask} onDelete={deleteTask} />
           </WidgetHost>
 
           <WidgetHost 
-            title="Intelligence" 
+            title="Links" 
             onClear={() => setState(p => ({ ...p, links: [] }))}
-            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>}
           >
             <LinksWidget links={state.links} onAdd={addLink} onDelete={deleteLink} />
           </WidgetHost>
