@@ -73,27 +73,30 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-blue-500/30">
-      <header className="border-b border-[#262626] bg-[#0d0d0d]/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-600/20">P</div>
-            <h1 className="text-lg font-bold tracking-tight">Poke Dashboard <span className="text-blue-500 ml-1">v2.0</span></h1>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="hidden sm:flex items-center gap-2 text-gray-500 text-xs bg-[#1a1a1a] px-3 py-1.5 rounded-full border border-[#262626]">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              Last saved: {new Date(state.lastSaved).toLocaleTimeString()}
+    <div className="min-h-screen bg-[#1a1a1a] text-zinc-400 font-sans selection:bg-zinc-500/30">
+      <header className="border-b border-[#262626] bg-[#1a1a1a]/90 backdrop-blur-xl sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-zinc-100 rounded-xl flex items-center justify-center font-black text-[#1a1a1a] shadow-2xl rotate-3">P</div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-zinc-100">Poke Dashboard</h1>
+              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em] mt-0.5">Control Center • v2.0</p>
             </div>
-            <div className="text-[10px] text-gray-500 bg-[#1a1a1a] px-2 py-1 rounded border border-[#262626] font-mono">
-              ⌘K TO SEARCH
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2.5 text-zinc-500 text-[10px] font-bold uppercase tracking-widest bg-zinc-900/50 px-4 py-2 rounded-full border border-zinc-800/50">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+              Synchronized
+            </div>
+            <div className="text-[10px] text-zinc-400 bg-zinc-100/5 hover:bg-zinc-100/10 transition-colors px-3 py-2 rounded-lg border border-white/5 font-mono cursor-default">
+              ⌘K
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <main className="max-w-7xl mx-auto px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <WidgetHost 
             title="Notes" 
             onClear={() => setState(p => ({ ...p, notes: [] }))}
@@ -103,7 +106,7 @@ const App: React.FC = () => {
           </WidgetHost>
 
           <WidgetHost 
-            title="Tasks" 
+            title="Objectives" 
             onClear={() => setState(p => ({ ...p, tasks: [] }))}
             icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
           >
@@ -111,7 +114,7 @@ const App: React.FC = () => {
           </WidgetHost>
 
           <WidgetHost 
-            title="Links" 
+            title="Intelligence" 
             onClear={() => setState(p => ({ ...p, links: [] }))}
             icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>}
           >
