@@ -1,161 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
+import { DashboardState, Note, Task, Link } from './types';
+import { WidgetHost } from './components/WidgetHost';
+import { NotesWidget } from './widgets/NotesWidget';
+import { TasksWidget } from './widgets/TasksWidget';
+import { LinksWidget } from './widgets/LinksWidget';
+import { CommandPalette } from './widgets/CommandPalette';
 
-export default function App() {
-  // Initialize state with values from localStorage or empty arrays
-  const [notes, setNotes] = useState<{ id: number; text: string }[]>(() => {
-    const saved = localStorage.getItem('poke_notes');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
-  const [tasks, setTasks] = useState<{ id: number; text: string; completed: boolean }[]>(() => {
-    const saved = localStorage.getItem('poke_tasks');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
-  const [links, setLinks] = useState<{ id: number; text: string; url: string }[]>(() => {
-    const saved = localStorage.getItem('poke_links');
-    return saved ? JSON.parse(saved) : [];
+const STORAGE_KEY = 'poke-dashboard-v2';
+
+const App: React.FC = () => {
+  const [state, setState] = useState<DashboardState>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {
+      notes: [],
+      tasks: [],
+      links: [],
+      lastSaved: new Date().toISOString()
+    };
   });
 
-  // Persist state to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('poke_notes', JSON.stringify(notes));
-  }, [notes]);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('poke_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, lastSaved: new Date().toISOString() }));
+  }, [state]);
 
   useEffect(() => {
-    localStorage.setItem('poke_links', JSON.stringify(links));
-  }, [links]);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  const addItem = (type: 'notes' | 'tasks' | 'links', val: string, extra?: string) => {
-    if (!val) return;
-    const id = Date.now();
-    if (type === 'notes') setNotes([...notes, { id, text: val }]);
-    if (type === 'tasks') setTasks([...tasks, { id, text: val, completed: false }]);
-    if (type === 'links') setLinks([...links, { id, text: val, url: extra || '#' }]);
+  // Handlers
+  const addNote = (content: string) => {
+    const newNote: Note = { id: crypto.randomUUID(), content, createdAt: new Date().toISOString() };
+    setState(prev => ({ ...prev, notes: [newNote, ...prev.notes] }));
+  };
+
+  const deleteNote = (id: string) => {
+    setState(prev => ({ ...prev, notes: prev.notes.filter(n => n.id !== id) }));
+  };
+
+  const updateNote = (id: string, content: string) => {
+    setState(prev => ({ ...prev, notes: prev.notes.map(n => n.id === id ? { ...n, content } : n) }));
+  };
+
+  const addTask = (text: string, priority: Task['priority'] = 'medium') => {
+    const newTask: Task = { id: crypto.randomUUID(), text, completed: false, priority };
+    setState(prev => ({ ...prev, tasks: [newTask, ...prev.tasks] }));
+  };
+
+  const toggleTask = (id: string) => {
+    setState(prev => ({ ...prev, tasks: prev.tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t) }));
+  };
+
+  const deleteTask = (id: string) => {
+    setState(prev => ({ ...prev, tasks: prev.tasks.filter(t => t.id !== id) }));
+  };
+
+  const addLink = (title: string, url: string) => {
+    const newLink: Link = { id: crypto.randomUUID(), title, url };
+    setState(prev => ({ ...prev, links: [newLink, ...prev.links] }));
+  };
+
+  const deleteLink = (id: string) => {
+    setState(prev => ({ ...prev, links: prev.links.filter(l => l.id !== id) }));
   };
 
   return (
-    <div className="min-h-screen bg-near-black p-8 font-sans selection:bg-zinc-800 selection:text-white text-zinc-100">
-      <header className="mb-12">
-        <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Poke Dashboard</h1>
-        <p className="text-zinc-500 mt-2">Monday, June 8, 2026</p>
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-blue-500/30">
+      <header className="border-b border-[#262626] bg-[#0d0d0d]/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-600/20">P</div>
+            <h1 className="text-lg font-bold tracking-tight">Poke Dashboard <span className="text-blue-500 ml-1">v2.0</span></h1>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-2 text-gray-500 text-xs bg-[#1a1a1a] px-3 py-1.5 rounded-full border border-[#262626]">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              Last saved: {new Date(state.lastSaved).toLocaleTimeString()}
+            </div>
+            <div className="text-[10px] text-gray-500 bg-[#1a1a1a] px-2 py-1 rounded border border-[#262626] font-mono">
+              ⌘K TO SEARCH
+            </div>
+          </div>
+        </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Notes Widget */}
-        <div className="bg-gunpowder border border-zinc-800 rounded-2xl p-6 transition-all hover:border-zinc-700 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-zinc-200">Notes</h2>
-            <button 
-              onClick={() => {
-                const text = prompt('Enter note:');
-                if (text) addItem('notes', text);
-              }}
-              className="p-2 bg-dark-ash hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
-            {notes.map(note => (
-              <div key={note.id} className="group flex items-start justify-between p-3 bg-dark-ash/50 rounded-xl border border-transparent hover:border-zinc-700 transition-all">
-                <p className="text-sm text-zinc-400 leading-relaxed">{note.text}</p>
-                <button 
-                  onClick={() => setNotes(notes.filter(n => n.id !== note.id))}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-            {notes.length === 0 && <p className="text-zinc-600 text-sm italic">No notes yet.</p>}
-          </div>
-        </div>
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <WidgetHost 
+            title="Notes" 
+            onClear={() => setState(p => ({ ...p, notes: [] }))}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/></svg>}
+          >
+            <NotesWidget notes={state.notes} onAdd={addNote} onDelete={deleteNote} onUpdate={updateNote} />
+          </WidgetHost>
 
-        {/* Tasks Widget */}
-        <div className="bg-gunpowder border border-zinc-800 rounded-2xl p-6 transition-all hover:border-zinc-700 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-zinc-200">Tasks</h2>
-            <button 
-              onClick={() => {
-                const text = prompt('Enter task:');
-                if (text) addItem('tasks', text);
-              }}
-              className="p-2 bg-dark-ash hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
-          <div className="space-y-3">
-            {tasks.map(task => (
-              <div key={task.id} className="group flex items-center justify-between p-3 bg-dark-ash/50 rounded-xl border border-transparent hover:border-zinc-700 transition-all">
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setTasks(tasks.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t))}
-                    className={`transition-colors ${task.completed ? 'text-emerald-500' : 'text-zinc-600 hover:text-zinc-400'}`}
-                  >
-                    <CheckCircle size={20} />
-                  </button>
-                  <span className={`text-sm ${task.completed ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
-                    {task.text}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setTasks(tasks.filter(t => t.id !== task.id))}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-            {tasks.length === 0 && <p className="text-zinc-600 text-sm italic">Clean slate.</p>}
-          </div>
-        </div>
+          <WidgetHost 
+            title="Tasks" 
+            onClear={() => setState(p => ({ ...p, tasks: [] }))}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
+          >
+            <TasksWidget tasks={state.tasks} onAdd={addTask} onToggle={toggleTask} onDelete={deleteTask} />
+          </WidgetHost>
 
-        {/* Links Widget */}
-        <div className="bg-gunpowder border border-zinc-800 rounded-2xl p-6 transition-all hover:border-zinc-700 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-zinc-200">Links</h2>
-            <button 
-              onClick={() => {
-                const name = prompt('Link name:');
-                const url = prompt('URL:');
-                if (name && url) addItem('links', name, url);
-              }}
-              className="p-2 bg-dark-ash hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
-          <div className="space-y-3">
-            {links.map(link => (
-              <div key={link.id} className="group flex items-center justify-between p-3 bg-dark-ash/50 rounded-xl border border-transparent hover:border-zinc-700 transition-all">
-                <a 
-                  href={link.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-zinc-400 hover:text-zinc-200 flex items-center gap-2 group/link"
-                >
-                  {link.text}
-                  <ExternalLink size={14} className="opacity-0 group-hover/link:opacity-100 transition-all" />
-                </a>
-                <button 
-                  onClick={() => setLinks(links.filter(l => l.id !== link.id))}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-            {links.length === 0 && <p className="text-zinc-600 text-sm italic">No quick links.</p>}
-          </div>
+          <WidgetHost 
+            title="Links" 
+            onClear={() => setState(p => ({ ...p, links: [] }))}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>}
+          >
+            <LinksWidget links={state.links} onAdd={addLink} onDelete={deleteLink} />
+          </WidgetHost>
         </div>
-      </div>
+      </main>
+
+      <CommandPalette 
+        isOpen={isPaletteOpen}
+        onClose={() => setIsPaletteOpen(false)}
+        notes={state.notes}
+        tasks={state.tasks}
+        links={state.links}
+        onAddNote={addNote}
+        onAddTask={addTask}
+      />
     </div>
   );
-}
+};
+
+export default App;
